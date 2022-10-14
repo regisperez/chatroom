@@ -23,6 +23,7 @@ func (a *App) Run(addr string) {
 
 func (a *App) initializeRoutes() {
 
+	a.Router.HandleFunc("/", ViewLogin).Methods("GET")
 	a.Router.HandleFunc("/users", GetUsers).Methods("GET")
 	a.Router.HandleFunc("/user", CreateUser).Methods("POST")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", GetUser).Methods("GET")

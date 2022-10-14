@@ -12,6 +12,7 @@ var a App
 func TestMain(m *testing.M) {
 	a.Initialize()
 	util.DatabaseTest = true
+	SessionTest = true
 	util.Router = a.Router
 	ensureTableExists()
 	code := m.Run()

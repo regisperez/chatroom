@@ -12,6 +12,9 @@ import (
 )
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
+	if isInvalidSession(w, r) {
+		return
+	}
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -33,8 +36,12 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, user)
 }
 
-func GetUsers(w http.ResponseWriter, r *http.Request) {
 
+
+func GetUsers(w http.ResponseWriter, r *http.Request) {
+	if isInvalidSession(w, r) {
+		return
+	}
 	users, err := model.GetUsers(util.DB())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -45,6 +52,9 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
+	if isInvalidSession(w, r) {
+		return
+	}
 	var (
 		user model.User
 		hashedPassword []byte
@@ -70,7 +80,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-
+	if isInvalidSession(w, r) {
+		return
+	}
 	var (
 		user model.User
 		hashedPassword []byte
@@ -104,6 +116,9 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	if isInvalidSession(w, r) {
+		return
+	}
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -150,7 +165,8 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil{
 		respondWithError(w, http.StatusUnauthorized, "Invalid password")
 	}else{
-		respondWithJSON(w, http.StatusOK, "Welcome, " +user.Name)
+		initSession(w, user)
+		respondWithJSON(w, http.StatusOK, "Welcome, "+user.Name)
 	}
 }
 

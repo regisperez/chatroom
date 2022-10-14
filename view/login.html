@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ChatRoom Login</title>
+  <script>
+    async function login() {
+      var login = document.getElementById("login").value;
+      var password = document.getElementById("password").value;
+
+      const response = await fetch("/user/login", {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: `{
+                 "login": "` + login + `",
+                 "password": "` + password + `"
+                }`,
+      });
+
+      response.json().then(data => {
+        console.log(data);
+      });
+
+    }
+  </script>
+</head>
+<body>
+<div id="main">
+  <center>
+    <div class="h-tag">
+      <h2>ChatRoom Login</h2>
+    </div>
+  </center>
+  <!-- Login box -->
+  <div class="login">
+    <table cellspacing="2" align="center" cellpadding="8" border="0">
+      <tr>
+        <td>Enter login :</td>
+        <td><input type="text" placeholder="Enter login here" id="login" class="tb" /></td>
+      </tr>
+      <tr>
+        <td>Enter password :</td>
+        <td><input type="password" placeholder="Enter Password here" id="password" class="tb" /></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>
+          <input type="submit" value="Login" class="btn" onClick="login()" /></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
