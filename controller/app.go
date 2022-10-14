@@ -28,4 +28,5 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/user/{id:[0-9]+}", GetUser).Methods("GET")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", UpdateUser).Methods("PUT")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", DeleteUser).Methods("DELETE")
+	a.Router.HandleFunc("/user/login", LoginUser).Methods("POST")
 }

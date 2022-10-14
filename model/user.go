@@ -66,3 +66,8 @@ func GetUsers(db *sql.DB) ([]User, error) {
 
 	return users, nil
 }
+
+func (user *User) LoginUser(db *sql.DB) error {
+	return db.QueryRow("SELECT name, login, password FROM users WHERE login=?",
+		user.Login).Scan(&user.Name, &user.Login,&user.Password)
+}

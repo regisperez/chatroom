@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 )
 
@@ -78,10 +77,6 @@ func TestCreateUser(t *testing.T) {
 		t.Errorf("Expected user login to be 'test'. Got '%v'", m["login"])
 	}
 
-	if m["password"] != "pass" {
-		t.Errorf("Expected user login to be 'pass'. Got '%v'", m["password"])
-	}
-
 	if m["id"] != 1.0 {
 		t.Errorf("Expected user ID to be '1'. Got '%v'", m["id"])
 	}
@@ -103,7 +98,7 @@ func addUsers(count int) {
 	}
 
 	for i := 0; i < count; i++ {
-		util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "User "+strconv.Itoa(i), "Login "+strconv.Itoa(i),"Password "+strconv.Itoa(i))
+		util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "test user", "test","$2a$08$tdBCe0L6QuocnBINJ7XZmODa4GdTNmp2qtsBqVqCbYoIxD.PBGFfW")
 	}
 }
 
@@ -157,4 +152,29 @@ func TestDeleteUser(t *testing.T) {
 	req, _ = http.NewRequest("GET", "/user/1", nil)
 	response = executeRequest(req)
 	checkResponseCode(t, http.StatusNotFound, response.Code)
+}
+
+func TestLoginUser(t *testing.T) {
+
+	clearTable()
+	addUsers(1)
+
+	req, _ := http.NewRequest("GET", "/user/1", nil)
+	response := executeRequest(req)
+	var originalUser map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &originalUser)
+
+	var jsonStr = []byte(`{"login": "test","password": "pass"}`)
+	req, _ = http.NewRequest("POST", "/user/login", bytes.NewBuffer(jsonStr))
+	req.Header.Set("Content-Type", "application/json")
+	response = executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if m.(string) != "Welcome, "+originalUser["name"].(string)  {
+		t.Errorf("Expected message to be 'Welcome, test user'. Got '%v'", m.(string))
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strconv"
 )
@@ -44,7 +45,11 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user model.User
+	var (
+		user model.User
+		hashedPassword []byte
+		err error
+	)
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -52,7 +57,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := user.CreateUser(util.DB()); err != nil {
+	hashedPassword, err = bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+
+	user.Password = string(hashedPassword)
+
+	if err = user.CreateUser(util.DB()); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -61,6 +70,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
+
+	var (
+		user model.User
+		hashedPassword []byte
+		err error
+	)
+
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -68,16 +84,18 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user model.User
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
+	if err = decoder.Decode(&user); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 		return
 	}
 	defer r.Body.Close()
-	user.ID = id
 
-	if err := user.UpdateUser(util.DB()); err != nil {
+	user.ID = id
+	hashedPassword, err = bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	user.Password = string(hashedPassword)
+
+	if err = user.UpdateUser(util.DB()); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -100,6 +118,40 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}
+
+func LoginUser(w http.ResponseWriter, r *http.Request) {
+	var (
+		user model.User
+		sentPassword []byte
+		err error
+	)
+	decoder := json.NewDecoder(r.Body)
+	if err = decoder.Decode(&user); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer r.Body.Close()
+
+	sentPassword = []byte(user.Password)
+
+	if err = user.LoginUser(util.DB()); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			respondWithError(w, http.StatusNotFound, "User not found")
+		default:
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), sentPassword)
+
+	if err != nil{
+		respondWithError(w, http.StatusUnauthorized, "Invalid password")
+	}else{
+		respondWithJSON(w, http.StatusOK, "Welcome, " +user.Name)
+	}
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
