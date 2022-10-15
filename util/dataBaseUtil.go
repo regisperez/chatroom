@@ -35,7 +35,7 @@ func DB() *sql.DB{
 		err error
 		DB *sql.DB
 	)
-	DB, err = sql.Open("mysql", ConnectionString)
+	DB, err = sql.Open("mysql", ConnectionString +"?parseTime=true")
 	if err != nil {
 		log.Fatal(err)
 	}

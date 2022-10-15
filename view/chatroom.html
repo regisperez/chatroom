@@ -4,6 +4,27 @@
   <meta charset="UTF-8">
   <title>ChatRoom</title>
   <script>
+
+    setInterval("reload();",3000);
+
+    async function reload(){
+      var chatbox = document.getElementById("chatbox");
+      const response = await fetch("/lastMessages", {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+      });
+
+      response.json().then(data => {
+        chatbox.innerHTML = '';
+        for (let i = 0; i < data.length; i++) {
+          chatbox.innerHTML += "<p>"+data[i].datetime+" "+data[i].user+":"+data[i].message+"</p>";
+        }
+      });
+    }
+
     async function logout() {
       const response = await fetch("/user/logout", {
         method: 'POST',
@@ -21,7 +42,7 @@
     }
     async function send() {
         var message = document.getElementById("message");
-
+        var chatbox = document.getElementById("chatbox");
         const response = await fetch("/message", {
           method: 'POST',
           headers: {
@@ -39,6 +60,7 @@
           console.log(data);
         });
     }
+
   </script>
 </head>
 <body>
@@ -48,9 +70,8 @@
       <p class="logout"> <input type="submit" value="logout" class="btn" onClick="logout()" /></td></p>
     </div>
 
-    <div id="chatbox">
-      <p>Sweet! So, what do you wanna do today?</p>
-      <span class="time-right">11:02</span>
+    <div id="chatbox" style="overflow-y: scroll;height: 800px">
+
     </div>
 
     <input name="message" type="text" id="message" />

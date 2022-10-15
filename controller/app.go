@@ -2,6 +2,7 @@ package controller
 
 import (
 	"chatroom/consts"
+	"chatroom/model"
 	"chatroom/util"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -16,6 +17,7 @@ type App struct {
 func (a *App) Initialize() {
 	a.Router = mux.NewRouter()
 	ensureTablesExists()
+	ensureHasAdminUser()
 	a.initializeRoutes()
 }
 
@@ -36,18 +38,24 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/user/logout", LogoutUser).Methods("POST")
 
 	a.Router.HandleFunc("/message", CreateMessage).Methods("POST")
+	a.Router.HandleFunc("/lastMessages", LastMessages).Methods("GET")
 }
 
 func ensureTablesExists() {
 	if _, err := util.DB().Exec(consts.TableUsersCreationQuery); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "Admin", "admin","$2a$08$tdBCe0L6QuocnBINJ7XZmODa4GdTNmp2qtsBqVqCbYoIxD.PBGFfW");err != nil {
-		log.Fatal(err)
-	}
 
 	if _, err := util.DB().Exec(consts.TableMessagesCreationQuery); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func ensureHasAdminUser(){
+	if model.HasAdminUser(util.DB()) == 0{
+		if _, err := util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "Admin", "admin","$2a$08$tdBCe0L6QuocnBINJ7XZmODa4GdTNmp2qtsBqVqCbYoIxD.PBGFfW");err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

@@ -71,3 +71,12 @@ func (user *User) LoginUser(db *sql.DB) error {
 	return db.QueryRow("SELECT name, login, password FROM users WHERE login=?",
 		user.Login).Scan(&user.Name, &user.Login,&user.Password)
 }
+
+func HasAdminUser(db *sql.DB) int {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM users WHERE login=?","admin").Scan(&count)
+	if err != nil {
+		return 0
+	}
+	return count
+}

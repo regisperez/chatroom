@@ -10,7 +10,7 @@ type Message struct {
 	ID       int       `json:"id"`
 	User     string    `json:"user"`
 	Message  string    `json:"message"`
-	DateTime time.Time `json:"date"`
+	DateTime time.Time `json:"datetime"`
 }
 
 func (message *Message) CreateMessage(db *sql.DB) error {
@@ -24,4 +24,27 @@ func (message *Message) CreateMessage(db *sql.DB) error {
 	message.ID = int(id)
 
 	return nil
+}
+
+func LastMessages(db *sql.DB) ([]Message, error) {
+	rows, err := db.Query(
+		"SELECT * FROM (SELECT * FROM chatroom.messages ORDER BY datetime desc limit 50) var1 ORDER BY id ASC")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	messages := []Message{}
+
+	for rows.Next() {
+		var message Message
+		if err := rows.Scan(&message.ID, &message.User, &message.Message,&message.DateTime); err != nil {
+			return nil, err
+		}
+		messages = append(messages, message)
+	}
+
+	return messages, nil
 }
