@@ -24,10 +24,12 @@ func (a *App) Run(addr string) {
 func (a *App) initializeRoutes() {
 
 	a.Router.HandleFunc("/", ViewLogin).Methods("GET")
+	a.Router.HandleFunc("/welcome", ViewWelcome).Methods("GET")
 	a.Router.HandleFunc("/users", GetUsers).Methods("GET")
 	a.Router.HandleFunc("/user", CreateUser).Methods("POST")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", GetUser).Methods("GET")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", UpdateUser).Methods("PUT")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", DeleteUser).Methods("DELETE")
 	a.Router.HandleFunc("/user/login", LoginUser).Methods("POST")
+	a.Router.HandleFunc("/user/logout", LogoutUser).Methods("POST")
 }

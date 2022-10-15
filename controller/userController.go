@@ -170,6 +170,11 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func LogoutUser(w http.ResponseWriter, r *http.Request) {
+	closeSession(w, r)
+	respondWithJSON(w, http.StatusOK, "Logout successfull")
+}
+
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
 }

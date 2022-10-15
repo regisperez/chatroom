@@ -11,6 +11,9 @@ func ViewLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func ViewWelcome(w http.ResponseWriter, r *http.Request) {
+	if isInvalidSession(w,r){
+		return
+	}
 	temp:= template.Must(template.ParseFiles("../view/welcome.html"))
 	temp.Execute(w,r)
 }

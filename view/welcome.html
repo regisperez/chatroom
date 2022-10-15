@@ -3,6 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>ChatRoom</title>
+  <script>
+    async function logout() {
+      const response = await fetch("/user/logout", {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+      });
+
+      response.json().then(data => {
+        console.log(data);
+        location.replace('/');
+      });
+
+    }
+  </script>
 </head>
 <body>
 <div id="main">
@@ -15,6 +32,8 @@
   <div class="welcome">
     <h1>Welcome</h1>
   </div>
+
+  <input type="submit" value="logout" class="btn" onClick="logout()" /></td>
 </div>
 
 </body>
