@@ -33,6 +33,7 @@ func (a *App) initializeRoutes() {
 
 	a.Router.HandleFunc("/", ViewLogin).Methods("GET")
 	a.Router.HandleFunc("/chatroom", ViewChatRoom).Methods("GET")
+	a.Router.HandleFunc("/admin", ViewAdmin).Methods("GET")
 	a.Router.HandleFunc("/users", GetUsers).Methods("GET")
 	a.Router.HandleFunc("/user", CreateUser).Methods("POST")
 	a.Router.HandleFunc("/user/{id:[0-9]+}", GetUser).Methods("GET")
@@ -43,6 +44,7 @@ func (a *App) initializeRoutes() {
 
 	a.Router.HandleFunc("/message", CreateMessage).Methods("POST")
 	a.Router.HandleFunc("/lastMessages", LastMessages).Methods("GET")
+	a.Router.HandleFunc("/stock/{stock:[A-Za-z0-9\\W]+}", GetStock).Methods("GET")
 
 	pool := websocket.NewPool()
 	go pool.Start()
@@ -94,7 +96,16 @@ func ensureTablesExists() {
 
 func ensureHasAdminUser(){
 	if model.HasAdminUser(util.DB()) == 0{
-		if _, err := util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "Admin", "admin","$2a$08$tdBCe0L6QuocnBINJ7XZmODa4GdTNmp2qtsBqVqCbYoIxD.PBGFfW");err != nil {
+		if _, err := util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "Jobsity", "admin","$2a$10$Oo4QBJ5ggrvuX0Cb0tWd8uLHMmT6NbDUa5jFTlM9qfbsD.VvyVlae");err != nil {
+			log.Fatal(err)
+		}
+		if _, err := util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "Regis Perez", "regis","$2a$10$.sdCQlnGqve0xqMpzrq7M.JH.uvHw0vPs3J3b/rhwxLBzdtbFVENa");err != nil {
+			log.Fatal(err)
+		}
+		if _, err := util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "Hideo Kojima", "hideo","$2a$10$eFQkvzLZ93/Sb1aJrRK2FO3tAlq1hznS.CRuT8UW05SwS5hedPQ1.");err != nil {
+			log.Fatal(err)
+		}
+		if _, err := util.DB().Exec("INSERT INTO users(name, login,password) VALUES(?, ?, ?)", "Lara Croft", "lara","$2a$10$/jqO1CTAftrWit41bCK8ROScnLUEvPWD.b6tKygaPeGhIKpwUwkQW");err != nil {
 			log.Fatal(err)
 		}
 	}

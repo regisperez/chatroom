@@ -1,9 +1,7 @@
 package websocket
 
 import (
-	"chatroom/util"
 	"fmt"
-	"strings"
 )
 
 type Pool struct {
@@ -41,13 +39,6 @@ func (pool *Pool) Start() {
 			break
 		case message := <-pool.Broadcast:
 			for client, _ := range pool.Clients {
-				if strings.Contains(message.Body, "/stock="){
-					stockArray:=strings.Split(message.Body,"/stock=")
-					if len(stockArray) > 1{
-						message.Body = util.GetStock(stockArray[1])
-					}
-				}
-
 				if err := client.Conn.WriteJSON(message); err != nil {
 					fmt.Println(err)
 					return

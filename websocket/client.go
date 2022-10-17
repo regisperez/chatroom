@@ -3,6 +3,7 @@ package websocket
 import (
 	"github.com/gorilla/websocket"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -25,7 +26,13 @@ func (c *Client) Read() {
 			return
 		}
 		timeMessage:=time.Now().Format("2006-01-02 15:04:05")
-		message := Message{Type: messageType, Body: timeMessage+" "+c.ID+": " +string(p)}
+		var body string
+		if strings.Contains(string(p),"Stock Bot:"){
+			body = timeMessage+" "+ string(p)
+		}else{
+			body = timeMessage+" "+c.ID+": " +string(p)
+		}
+		message := Message{Type: messageType, Body: body}
 		c.Pool.Broadcast <- message
 	}
 }

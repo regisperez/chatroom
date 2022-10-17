@@ -23,9 +23,11 @@
 <body>
   <div>
     <h1>ChatRoom</h1>
-    <p id="welcome"> </p><input type="submit" value="logout" class="btn" onClick="logout()" />
+    <p id="welcome"> </p>
+    <input type="submit" value="admin" class="btn" onClick="admin()"/>
+    <input type="submit" value="logout" class="btn" onClick="logout()" />
     <p>Available command: /stock=stock_code (Example: /stock=aapl.us) </p>
-    <pre id="output"></pre>
+    <pre id="output" style="text-align: left"></pre>
     <input id="input" type="text" size="40" />
     <button id="send" onclick="send()">Send</button>
 
@@ -54,8 +56,32 @@
   };
 
   function send() {
-    socket.send(input.value);
-    input.value = "";
+    if (input.value.includes("/stock=")){
+      var stock = input.value.trim();
+      console.log(stock);
+      stockResult(stock);
+      input.value = "";
+    }else{
+      socket.send(input.value);
+      input.value = "";
+    }
+
+  }
+
+  async function stockResult(stock) {
+    const response = await fetch("/stock/"+stock, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+    });
+
+    response.json().then(data => {
+      socket.send(data);
+    }).catch(function(error) {
+      socket.send(error);
+    });;
   }
 
   async function logout() {
@@ -70,7 +96,10 @@
     response.json().then(data => {
       location.replace('/');
     });
+  }
 
+  function admin() {
+      location.replace('/admin');
   }
 
   function getCookie(name) {
