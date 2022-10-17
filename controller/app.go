@@ -4,11 +4,15 @@ import (
 	"chatroom/consts"
 	"chatroom/model"
 	"chatroom/util"
+	"chatroom/websocket"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
+
+var messages []string
 
 type App struct {
 	Router *mux.Router
@@ -39,7 +43,83 @@ func (a *App) initializeRoutes() {
 
 	a.Router.HandleFunc("/message", CreateMessage).Methods("POST")
 	a.Router.HandleFunc("/lastMessages", LastMessages).Methods("GET")
+
+	pool := websocket.NewPool()
+	go pool.Start()
+
+	a.Router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(pool, w, r)
+	})
+	//a.Router.HandleFunc("/ws", serveWs)
+	//a.Router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	//	// Upgrade upgrades the HTTP server connection to the WebSocket protocol.
+	//	conn, err := upgrader.Upgrade(w, r, nil)
+	//	if err != nil {
+	//		log.Print("upgrade failed: ", err)
+	//		return
+	//	}
+	//	defer conn.Close()
+	//
+	//	// Continuosly read and write message
+	//	for {
+	//		mt, message, err := conn.ReadMessage()
+	//		if err != nil {
+	//			log.Println("read failed:", err)
+	//			break
+	//		}
+	//		//input := string(message)
+	//		//message = []byte(input)
+	//		err = conn.WriteMessage(mt, message)
+	//		if err != nil {
+	//			log.Println("write failed:", err)
+	//			break
+	//		}
+	//	}
+	//})
 }
+
+//func serveWs(w http.ResponseWriter, r *http.Request) {
+//	// Upgrade upgrades the HTTP server connection to the WebSocket protocol.
+//	conn, err := upgrader.Upgrade(w, r, nil)
+//	if err != nil {
+//		log.Print("upgrade failed: ", err)
+//		return
+//	}
+//	defer conn.Close()
+//
+//	// Continuosly read and write message
+//	for {
+//		mt, message, err := conn.ReadMessage()
+//		if err != nil {
+//			log.Println("read failed:", err)
+//			break
+//		}
+//		//input := string(message)
+//		//message = []byte(input)
+//		err = conn.WriteMessage(mt, message)
+//		if err != nil {
+//			log.Println("write failed:", err)
+//			break
+//		}
+//	}
+//}
+
+func serveWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
+	fmt.Println("WebSocket Endpoint Hit")
+	conn, err := websocket.Upgrade(w, r)
+	if err != nil {
+		fmt.Fprintf(w, "%+v\n", err)
+	}
+
+	client := &websocket.Client{
+		Conn: conn,
+		Pool: pool,
+	}
+
+	pool.Register <- client
+	client.Read()
+}
+
 
 func ensureTablesExists() {
 	if _, err := util.DB().Exec(consts.TableUsersCreationQuery); err != nil {

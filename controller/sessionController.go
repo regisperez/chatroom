@@ -2,6 +2,7 @@ package controller
 
 import (
 	"chatroom/model"
+	"fmt"
 	"github.com/google/uuid"
 	"net/http"
 	"time"
@@ -40,6 +41,7 @@ func CheckSession(w http.ResponseWriter, r *http.Request) (int,string){
 		return http.StatusBadRequest, "bad request"
 	}
 	sessionToken := c.Value
+	fmt.Println(sessions[c.Value])
 
 	// We then get the session from our session map
 	userSession, exists := sessions[sessionToken]
@@ -76,6 +78,15 @@ func initSession(w http.ResponseWriter, user model.User) {
 		Value:   sessionToken,
 		Expires: expiresAt,
 		Path: "/",
+		SameSite: 4,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "user_name",
+		Value:   user.Name,
+		Expires: expiresAt,
+		Path: "/",
+		SameSite: 4,
 	})
 }
 
@@ -101,6 +112,12 @@ func closeSession(w http.ResponseWriter, r *http.Request) {
 	// value and set its expiry as the current time
 	http.SetCookie(w, &http.Cookie{
 		Name:    "session_token",
+		Value:   "",
+		Expires: time.Now(),
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "user_name",
 		Value:   "",
 		Expires: time.Now(),
 	})

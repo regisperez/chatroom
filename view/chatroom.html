@@ -3,84 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <title>ChatRoom</title>
-  <script>
-
-    setInterval("reload();",3000);
-
-    async function reload(){
-      var chatbox = document.getElementById("chatbox");
-      const response = await fetch("/lastMessages", {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-      });
-
-      response.json().then(data => {
-        chatbox.innerHTML = '';
-        for (let i = 0; i < data.length; i++) {
-          chatbox.innerHTML += "<p>"+data[i].datetime+" "+data[i].user+":"+data[i].message+"</p>";
-        }
-      });
+  <style>
+    html {
+      text-align: center;
+      font-size: 16px;
     }
-
-    async function logout() {
-      const response = await fetch("/user/logout", {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-      });
-
-      response.json().then(data => {
-        console.log(data);
-        location.replace('/');
-      });
-
+    div {
+      padding: 1rem;
     }
-    async function send() {
-        var message = document.getElementById("message");
-        var chatbox = document.getElementById("chatbox");
-        const response = await fetch("/message", {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: `{
-                 "message": "` + message.value + `",
-                 "user": "test"
-                }`,
-        });
-
-        response.json().then(data => {
-          message.value = '';
-          console.log(data);
-        });
+    #input {
+      font-size: 16px;
     }
+    p {
+      font-size: 16px;
+    }
+  </style>
 
-  </script>
 </head>
 <body>
-  <div id="wrapper">
-    <div id="menu">
-      <p class="welcome">Welcome, <b></b></p>
-      <p class="logout"> <input type="submit" value="logout" class="btn" onClick="logout()" /></td></p>
-    </div>
-
-    <div id="chatbox" style="overflow-y: scroll;height: 800px">
-
-    </div>
-
-    <input name="message" type="text" id="message" />
-    <input name="submitmsg" type="submit" id="submitmsg" value="Send" onClick="send()" />
+  <div>
+    <h1>ChatRoom</h1>
+    <p id="welcome"> </p>
+    <p>Available command: /stock=stock_code  </p>
+    <p>Example: /stock=aapl.us </p>
+    <pre id="output"></pre>
+    <input id="input" type="text" size="40" />
+    <button onclick="send()">Send</button>
 
   </div>
-
-
-</div>
-
 </body>
+
+<script>
+  var usernameWithQuotes = getCookie('user_name');
+  username = usernameWithQuotes.replace(/^"(.*)"$/, '$1');
+  document.getElementById("welcome").innerHTML += "Welcome, "+ username;
+  var input = document.getElementById("input");
+  var socket = new WebSocket("ws://localhost:8010/ws");
+
+  socket.onopen = function () {
+    output.innerHTML += "Status: Connected\n";
+  };
+
+  socket.onmessage = function (e) {
+    const obj = JSON.parse(e.data);
+    output.innerHTML += obj.body + "\n";
+  };
+
+  function send() {
+    socket.send(username + ": "+input.value);
+    input.value = "";
+  }
+
+  function getCookie(name) {
+    function escape(s) { return s.replace(/([.*+?\^$(){}|\[\]\/\\])/g, '\\$1'); }
+    var match = document.cookie.match(RegExp('(?:^|;\\s*)' + escape(name) + '=([^;]*)'));
+    return match ? match[1] : null;
+  }
+
+</script>
 </html>
