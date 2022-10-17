@@ -1,5 +1,5 @@
-server = "localhost"
+server = "chat_db"
 port = "3306"
 database = "chatroom_test"
 user = "root"
-password = "#Spiderman2099"
+password = "challenge"

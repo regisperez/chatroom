@@ -13,7 +13,7 @@ func GetStock(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	stockRequest := vars["stock"]
 	stockCode:=strings.TrimLeft(stockRequest,"/stock=")
-	fmt.Println(stockCode)
+
 	resp, err := http.Get("https://stooq.com/q/l/?s="+stockCode+"&f=sd2t2ohlcv&h&e=csv")
 	if err != nil {
 		log.Fatalln(err)
@@ -31,7 +31,7 @@ func GetStock(w http.ResponseWriter, r *http.Request){
 		respondWithError(w, http.StatusOK, "Stock Bot: error"+err.Error())
 	}
 	stockArray:=strings.Split(string(body),",")
-	fmt.Println(stockArray)
+
 	if len (stockArray) > 7 {
 		if stockArray[7] != "N/D"{
 			volumeArray:=strings.Split(stockArray[7],"Volume")

@@ -1,0 +1,50 @@
+version: '3.3'
+
+services:
+  chat_db:
+    container_name: chat_db
+    image: "mysql:latest"
+    restart: always
+    networks:
+      - default
+    ports:
+      - "3307:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_DATABASE=chatroom
+      - MYSQL_ROOT_PASSWORD=challenge
+    volumes:
+      - "./init.sql:/docker-entrypoint-initdb.d/1.sql"
+
+
+  app:
+    container_name: chatroom
+    build: .
+    ports:
+      - "8010:8010"
+    networks:
+      - default
+    expose:
+      - 8010
+    depends_on:
+      - chat_db
+    restart: always
+    volumes:
+      - .:/go/src/chatroom
+    environment:
+      - DBUSER=root
+      - DBPASS=challenge
+      - DBNAME=chatroom
+      - DBHOST=chat_db
+      - DBPORT=3306
+
+  test:
+    image: golang:1.18
+    depends_on:
+      - chat_db
+    volumes:
+      - .:/usr/src/chatroom
+      - /tmp/go:/go
+    working_dir: /usr/src/chatroom/controller
+    command: bash -c "go test --cover -v ./..."
+    restart: on-failure
