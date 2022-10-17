@@ -14,6 +14,7 @@ INSERT INTO users(name, login,password) VALUES("Jobsity", "admin","$2a$10$Oo4QBJ
 INSERT INTO users(name, login,password) VALUES("Regis Perez", "regis","$2a$10$.sdCQlnGqve0xqMpzrq7M.JH.uvHw0vPs3J3b/rhwxLBzdtbFVENa");
 INSERT INTO users(name, login,password) VALUES("Hideo Kojima", "hideo","$2a$10$eFQkvzLZ93/Sb1aJrRK2FO3tAlq1hznS.CRuT8UW05SwS5hedPQ1.");
 INSERT INTO users(name, login,password) VALUES("Lara Croft", "lara","$2a$10$/jqO1CTAftrWit41bCK8ROScnLUEvPWD.b6tKygaPeGhIKpwUwkQW");
+INSERT INTO users(name, login,password) VALUES("Catarina Lopes", "catarina","$2a$10$IV991CsHckG9W/XNxWn86.vW6v1SozItNmXBIvVO0GQ1c5E2Wi/O2");
 
 
 
