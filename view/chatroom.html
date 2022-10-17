@@ -46,9 +46,8 @@
 
   socket.onmessage = function (e) {
     var lines = output.innerHTML.split("\n");
-    console.log(lines.length);
-    if (lines.length > 49) {
-      output.innerHTML = output.innerHTML.replaceAll(lines[lines.length - 50]+"\n", '');
+    if (lines.length > 50) {
+      output.innerHTML = output.innerHTML.replaceAll(lines[lines.length - 51]+"\n", '');
     }
     const obj = JSON.parse(e.data);
     output.innerHTML += obj.body + "\n";
@@ -69,7 +68,6 @@
     });
 
     response.json().then(data => {
-      console.log(data);
       location.replace('/');
     });
 
