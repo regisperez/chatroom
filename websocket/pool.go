@@ -23,14 +23,16 @@ func (pool *Pool) Start() {
 		select {
 		case client := <-pool.Register:
 			pool.Clients[client] = true
+			userName:= client.ID
 			for client, _ := range pool.Clients {
-				client.Conn.WriteJSON(Message{Type: 1, Body: "New User Joined..."})
+				client.Conn.WriteJSON(Message{Type: 1, Body: userName+" Joined..."})
 			}
 			break
 		case client := <-pool.Unregister:
 			delete(pool.Clients, client)
+			userName:= client.ID
 			for client, _ := range pool.Clients {
-				client.Conn.WriteJSON(Message{Type: 1, Body: "User Disconnected..."})
+				client.Conn.WriteJSON(Message{Type: 1, Body: userName+" Disconnected..."})
 			}
 			break
 		case message := <-pool.Broadcast:

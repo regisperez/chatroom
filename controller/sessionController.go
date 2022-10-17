@@ -2,7 +2,6 @@ package controller
 
 import (
 	"chatroom/model"
-	"fmt"
 	"github.com/google/uuid"
 	"net/http"
 	"time"
@@ -41,7 +40,6 @@ func CheckSession(w http.ResponseWriter, r *http.Request) (int,string){
 		return http.StatusBadRequest, "bad request"
 	}
 	sessionToken := c.Value
-	fmt.Println(sessions[c.Value])
 
 	// We then get the session from our session map
 	userSession, exists := sessions[sessionToken]

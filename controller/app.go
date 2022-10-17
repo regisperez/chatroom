@@ -50,68 +50,29 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(pool, w, r)
 	})
-	//a.Router.HandleFunc("/ws", serveWs)
-	//a.Router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-	//	// Upgrade upgrades the HTTP server connection to the WebSocket protocol.
-	//	conn, err := upgrader.Upgrade(w, r, nil)
-	//	if err != nil {
-	//		log.Print("upgrade failed: ", err)
-	//		return
-	//	}
-	//	defer conn.Close()
-	//
-	//	// Continuosly read and write message
-	//	for {
-	//		mt, message, err := conn.ReadMessage()
-	//		if err != nil {
-	//			log.Println("read failed:", err)
-	//			break
-	//		}
-	//		//input := string(message)
-	//		//message = []byte(input)
-	//		err = conn.WriteMessage(mt, message)
-	//		if err != nil {
-	//			log.Println("write failed:", err)
-	//			break
-	//		}
-	//	}
-	//})
 }
 
-//func serveWs(w http.ResponseWriter, r *http.Request) {
-//	// Upgrade upgrades the HTTP server connection to the WebSocket protocol.
-//	conn, err := upgrader.Upgrade(w, r, nil)
-//	if err != nil {
-//		log.Print("upgrade failed: ", err)
-//		return
-//	}
-//	defer conn.Close()
-//
-//	// Continuosly read and write message
-//	for {
-//		mt, message, err := conn.ReadMessage()
-//		if err != nil {
-//			log.Println("read failed:", err)
-//			break
-//		}
-//		//input := string(message)
-//		//message = []byte(input)
-//		err = conn.WriteMessage(mt, message)
-//		if err != nil {
-//			log.Println("write failed:", err)
-//			break
-//		}
-//	}
-//}
+
 
 func serveWs(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
-	fmt.Println("WebSocket Endpoint Hit")
+
 	conn, err := websocket.Upgrade(w, r)
 	if err != nil {
 		fmt.Fprintf(w, "%+v\n", err)
 	}
 
-	client := &websocket.Client{
+	c, err := r.Cookie("user_name")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			// If the cookie is not set, return an unauthorized status
+			return
+		}
+		// For any other type of error, return a bad request status
+		return
+	}
+	userName := c.Value
+
+	client := &websocket.Client{ID: userName,
 		Conn: conn,
 		Pool: pool,
 	}

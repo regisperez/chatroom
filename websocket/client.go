@@ -3,17 +3,13 @@ package websocket
 import (
 	"github.com/gorilla/websocket"
 	"log"
+	"time"
 )
 
 type Client struct {
 	ID   string
 	Conn *websocket.Conn
 	Pool *Pool
-}
-
-type Message struct {
-	Type int    `json:"type"`
-	Body string `json:"body"`
 }
 
 func (c *Client) Read() {
@@ -28,7 +24,8 @@ func (c *Client) Read() {
 			log.Println(err)
 			return
 		}
-		message := Message{Type: messageType, Body: string(p)}
+		timeMessage:=time.Now().Format("2006-01-02 15:04:05")
+		message := Message{Type: messageType, Body: timeMessage+" "+c.ID+": " +string(p)}
 		c.Pool.Broadcast <- message
 	}
 }

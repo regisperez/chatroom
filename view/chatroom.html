@@ -23,12 +23,11 @@
 <body>
   <div>
     <h1>ChatRoom</h1>
-    <p id="welcome"> </p>
-    <p>Available command: /stock=stock_code  </p>
-    <p>Example: /stock=aapl.us </p>
+    <p id="welcome"> </p><input type="submit" value="logout" class="btn" onClick="logout()" />
+    <p>Available command: /stock=stock_code (Example: /stock=aapl.us) </p>
     <pre id="output"></pre>
     <input id="input" type="text" size="40" />
-    <button onclick="send()">Send</button>
+    <button id="send" onclick="send()">Send</button>
 
   </div>
 </body>
@@ -38,20 +37,42 @@
   username = usernameWithQuotes.replace(/^"(.*)"$/, '$1');
   document.getElementById("welcome").innerHTML += "Welcome, "+ username;
   var input = document.getElementById("input");
+  var sendButton = document.getElementById("send");
   var socket = new WebSocket("ws://localhost:8010/ws");
 
-  socket.onopen = function () {
+   socket.onopen = function () {
     output.innerHTML += "Status: Connected\n";
   };
 
   socket.onmessage = function (e) {
+    var lines = output.innerHTML.split("\n");
+    console.log(lines.length);
+    if (lines.length > 49) {
+      output.innerHTML = output.innerHTML.replaceAll(lines[lines.length - 50]+"\n", '');
+    }
     const obj = JSON.parse(e.data);
     output.innerHTML += obj.body + "\n";
   };
 
   function send() {
-    socket.send(username + ": "+input.value);
+    socket.send(input.value);
     input.value = "";
+  }
+
+  async function logout() {
+    const response = await fetch("/user/logout", {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+    });
+
+    response.json().then(data => {
+      console.log(data);
+      location.replace('/');
+    });
+
   }
 
   function getCookie(name) {
