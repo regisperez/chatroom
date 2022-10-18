@@ -3,7 +3,7 @@
 A simple browser-based chat application using Go.
 This application allow several users to talk in a chatroom and also to get stock quotes from an API using a specific command.
 
-##Features
+## Features
 - Allow registered users to log in and talk with other users in a chatroom.
 - Allow users to post messages as commands into the chatroom with the following format /stock=stock_code
 - Chat messages ordered by their timestamps and show only the last 50 messages.
