@@ -77,6 +77,7 @@ func initSession(w http.ResponseWriter, user model.User) {
 		Expires: expiresAt,
 		Path: "/",
 		SameSite: 4,
+		Secure: true,
 	})
 
 	http.SetCookie(w, &http.Cookie{
@@ -85,6 +86,7 @@ func initSession(w http.ResponseWriter, user model.User) {
 		Expires: expiresAt,
 		Path: "/",
 		SameSite: 4,
+		Secure: true,
 	})
 }
 
